@@ -1,18 +1,15 @@
 package main
 
 import (
-	"context"
-	"log"
-	"log/slog"
-	"net/http"
+	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
+)
+
+var (
+	Version   = "dev"
+	BuildTime = "unknown"
 )
 
 func main() {
@@ -20,45 +17,64 @@ func main() {
 		godotenv.Load()
 	}
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
-
-	addr := os.Getenv("ADDR")
-	if addr == "" {
-		addr = ":3080"
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(1)
 	}
 
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: r,
+	cmd := os.Args[1]
+	args := os.Args[2:]
+
+	switch cmd {
+	case "serve":
+		serveCmd(args)
+	case "add":
+		addCmd(args)
+	case "remove", "rm":
+		removeCmd(args)
+	case "set":
+		setCmd(args)
+	case "list", "ls":
+		listCmd(args)
+	case "url":
+		urlCmd(args)
+	case "-V", "-version", "--version", "version":
+		versionCmd()
+	case "help", "-h", "-help", "--help":
+		printUsage()
+	default:
+		fmt.Fprintf(os.Stderr, "unknown command: %s\n", cmd)
+		printUsage()
+		os.Exit(1)
 	}
+}
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGTERM)
+func printUsage() {
+	fmt.Println("deadman - heartbeat monitoring server")
+	fmt.Println()
+	fmt.Println("Usage: deadman <command> [options]")
+	fmt.Println()
+	fmt.Println("Commands:")
+	fmt.Println("  serve             Start the HTTP server and check loop")
+	fmt.Println("  add <name>        Add a monitored service")
+	fmt.Println("  set <name>        Update a monitored service")
+	fmt.Println("  remove <name>     Remove a monitored service")
+	fmt.Println("  list              List services and their status")
+	fmt.Println("  url <name>        Print a service's check-in URL")
+	fmt.Println("  version           Print version")
+	fmt.Println("  help              Show this help")
+	fmt.Println()
+	fmt.Println("Use 'deadman <command> -help' for command-specific help.")
+}
 
-	go func() {
-		<-done
-		slog.Info("shutting down")
+func versionCmd() {
+	fmt.Printf("deadman %s\n", Version)
+	fmt.Printf("Built: %s\n", BuildTime)
+}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		if err := srv.Shutdown(ctx); err != nil {
-			slog.Error("shutdown error", "error", err)
-		}
-	}()
-
-	slog.Info("starting server", "addr", addr)
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal("server error: ", err)
+func getEnv(key, defaultVal string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
 	}
+	return defaultVal
 }
