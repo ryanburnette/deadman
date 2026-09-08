@@ -1,0 +1,12 @@
+LOCAL.md
+*.tmp
+*.tmp.d
+tmp
+agent-session.tmp.d
+
+# Go
+/deadman
+*.exe
+
+# Env
+.env
