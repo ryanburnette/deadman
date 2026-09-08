@@ -18,11 +18,13 @@ It emails again when the service checks back in.
 
 ## Config is CLI-managed, never hand-edited
 
-`services.csv` (path via `-config` / `CONFIG_PATH`) is the list of
-monitored services: name, token, interval, grace, repeat, email. It's
-managed exclusively through `deadman add|set|remove|list|url` — always use
-those, don't write the CSV by hand or by script, since the CLI is what
-generates check-in tokens and keeps the format consistent.
+`services.csv` (path via `-config` / `CONFIG_PATH`, default
+`~/.config/deadman/services.csv`) is the list of monitored services: name,
+token, interval, grace, repeat, email. It's managed exclusively through
+`deadman add|set|remove|list|url` — always use those, don't write the CSV
+by hand or by script, since the CLI is what generates check-in tokens and
+keeps the format consistent. The CLI creates the parent directory if it
+doesn't exist yet.
 
 A running `deadman serve` polls this file's mtime (every `-check-interval`,
 default 15s) and reloads it live, so CLI edits take effect without a
@@ -30,10 +32,11 @@ restart. New services get a fresh grace period starting at the moment
 they're first loaded (CLI add time, or server start/reload time), not
 retroactively.
 
-`state.json` (path via `-state` / `STATE_PATH`) is separate: last-seen
-timestamp, up/down status, last-notified time per service. It's runtime
-data the server owns — don't hand-edit it either. It's what makes a
-restart not forget an in-progress outage.
+`state.json` (path via `-state` / `STATE_PATH`, default
+`~/.local/deadman/state.json`) is separate: last-seen timestamp, up/down
+status, last-notified time per service. It's runtime data the server
+owns — don't hand-edit it either. It's what makes a restart not forget an
+in-progress outage.
 
 ## CLI usage
 

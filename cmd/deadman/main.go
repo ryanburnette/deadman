@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
@@ -77,4 +78,24 @@ func getEnv(key, defaultVal string) string {
 		return val
 	}
 	return defaultVal
+}
+
+// defaultConfigPath is ~/.config/deadman/services.csv, falling back to the
+// current directory if the home directory can't be determined.
+func defaultConfigPath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "./services.csv"
+	}
+	return filepath.Join(home, ".config", "deadman", "services.csv")
+}
+
+// defaultStatePath is ~/.local/deadman/state.json, falling back to the
+// current directory if the home directory can't be determined.
+func defaultStatePath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "./state.json"
+	}
+	return filepath.Join(home, ".local", "deadman", "state.json")
 }

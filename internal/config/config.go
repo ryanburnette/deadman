@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 )
@@ -90,6 +91,12 @@ func Save(path string, services []Service) error {
 	sorted := make([]Service, len(services))
 	copy(sorted, services)
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Name < sorted[j].Name })
+
+	if dir := filepath.Dir(path); dir != "." {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return fmt.Errorf("creating %s: %w", dir, err)
+		}
+	}
 
 	tmp := path + ".tmp"
 	f, err := os.Create(tmp)

@@ -13,7 +13,7 @@ import (
 
 func addCmd(args []string) {
 	fs := flag.NewFlagSet("add", flag.ExitOnError)
-	configPath := fs.String("config", getEnv("CONFIG_PATH", "./services.csv"), "services config path")
+	configPath := fs.String("config", getEnv("CONFIG_PATH", defaultConfigPath()), "services config path")
 	interval := fs.Duration("interval", 0, "how often the service is expected to check in (e.g. 5m)")
 	grace := fs.Duration("grace", time.Minute, "grace period after the interval before alerting")
 	repeat := fs.Duration("repeat", 0, "resend the down alert at this interval while still down (0 = alert once)")
@@ -73,8 +73,8 @@ func addCmd(args []string) {
 
 func removeCmd(args []string) {
 	fs := flag.NewFlagSet("remove", flag.ExitOnError)
-	configPath := fs.String("config", getEnv("CONFIG_PATH", "./services.csv"), "services config path")
-	statePath := fs.String("state", getEnv("STATE_PATH", "./state.json"), "state file path")
+	configPath := fs.String("config", getEnv("CONFIG_PATH", defaultConfigPath()), "services config path")
+	statePath := fs.String("state", getEnv("STATE_PATH", defaultStatePath()), "state file path")
 
 	for _, a := range args {
 		if a == "-h" || a == "-help" || a == "--help" {
@@ -119,7 +119,7 @@ func removeCmd(args []string) {
 
 func setCmd(args []string) {
 	fs := flag.NewFlagSet("set", flag.ExitOnError)
-	configPath := fs.String("config", getEnv("CONFIG_PATH", "./services.csv"), "services config path")
+	configPath := fs.String("config", getEnv("CONFIG_PATH", defaultConfigPath()), "services config path")
 	interval := fs.Duration("interval", 0, "how often the service is expected to check in")
 	grace := fs.Duration("grace", 0, "grace period after the interval before alerting")
 	repeat := fs.Duration("repeat", -1, "resend the down alert at this interval while still down (0 = alert once)")
@@ -186,8 +186,8 @@ func setCmd(args []string) {
 
 func listCmd(args []string) {
 	fs := flag.NewFlagSet("list", flag.ExitOnError)
-	configPath := fs.String("config", getEnv("CONFIG_PATH", "./services.csv"), "services config path")
-	statePath := fs.String("state", getEnv("STATE_PATH", "./state.json"), "state file path")
+	configPath := fs.String("config", getEnv("CONFIG_PATH", defaultConfigPath()), "services config path")
+	statePath := fs.String("state", getEnv("STATE_PATH", defaultStatePath()), "state file path")
 
 	for _, a := range args {
 		if a == "-h" || a == "-help" || a == "--help" {
@@ -231,7 +231,7 @@ func listCmd(args []string) {
 
 func urlCmd(args []string) {
 	fs := flag.NewFlagSet("url", flag.ExitOnError)
-	configPath := fs.String("config", getEnv("CONFIG_PATH", "./services.csv"), "services config path")
+	configPath := fs.String("config", getEnv("CONFIG_PATH", defaultConfigPath()), "services config path")
 
 	for _, a := range args {
 		if a == "-h" || a == "-help" || a == "--help" {

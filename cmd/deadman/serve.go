@@ -23,8 +23,8 @@ import (
 func serveCmd(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
 	addr := fs.String("addr", getEnv("ADDR", ":3080"), "listen address")
-	configPath := fs.String("config", getEnv("CONFIG_PATH", "./services.csv"), "services config path")
-	statePath := fs.String("state", getEnv("STATE_PATH", "./state.json"), "state file path")
+	configPath := fs.String("config", getEnv("CONFIG_PATH", defaultConfigPath()), "services config path")
+	statePath := fs.String("state", getEnv("STATE_PATH", defaultStatePath()), "state file path")
 	checkInterval := fs.Duration("check-interval", 15*time.Second, "how often to check for missed heartbeats and config changes")
 
 	for _, a := range args {
